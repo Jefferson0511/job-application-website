@@ -42,8 +42,15 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
     setSalaryRange(values);
     applyFilters({ minSalary: values[0], maxSalary: values[1] });
   };
-
-  const applyFilters = (newFilters: any) => {
+  interface JobFilters {
+    title?: string;
+    location?: string | null;
+    jobType?: string | null;
+    minSalary?: number;
+    maxSalary?: number;
+  }
+  
+  const applyFilters = (newFilters: JobFilters) => {
     const filters = {
       title,
       location,

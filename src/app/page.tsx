@@ -11,7 +11,7 @@ import {
   Loader, 
   Center, 
   Image,
-  Title
+  // Title
 } from '@mantine/core';
 import JobCard from '../../components/JobCard';
 import FilterBar from '../../components/FilterBar';
@@ -234,7 +234,6 @@ export default function Home() {
       isFirstRender.current = false;
       return;
     }
-  
     fetchJobs();
   }, [filters]);  
 
