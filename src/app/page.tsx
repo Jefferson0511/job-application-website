@@ -1,103 +1,331 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { 
+  Container, 
+  Grid, 
+  Box, 
+  Text, 
+  Button, 
+  Group, 
+  Loader, 
+  Center, 
+  Image,
+  Title
+} from '@mantine/core';
+import JobCard from '../../components/JobCard';
+import FilterBar from '../../components/FilterBar';
+import CreateJobModal from '../../components/CreateJobModal';
+
+interface Job {
+  id: number;
+  title: string;
+  company: string;
+  location: string;
+  jobType: string;
+  salaryRange: string;
+  description: string;
+  requirements: string;
+  responsibilities: string;
+  deadline: string;
+  isDraft: boolean;
+  logo?: string;
+  experience?: string;
+  salary?: string;
+}
+// Mock data for jobs (you can remove this when API call is working correctly)
+const mockJobs = [
+  {
+    id: 1,
+    title: 'Full Stack Developer',
+    company: 'Amazon',
+    location: 'Onsite',
+    jobType: 'Full-time',
+    salaryRange: '₹50k - ₹80k',
+    description: 'A user-friendly interface lets you browse stunning photos and videos',
+    requirements: 'JavaScript, React, Node.js',
+    responsibilities: 'Develop and maintain web applications',
+    deadline: '2023-12-31',
+    isDraft: false,
+    logo: '/logos/amazon.png',
+    experience: '1-3 yr Exp',
+    salary: '12LPA'
+  },
+  {
+    id: 2,
+    title: 'Node Js Developer',
+    company: 'Tesla',
+    location: 'Onsite',
+    jobType: 'Full-time',
+    salaryRange: '₹60k - ₹90k',
+    description: 'A user-friendly interface lets you browse stunning photos and videos',
+    requirements: 'Node.js, Express, MongoDB',
+    responsibilities: 'Develop and maintain backend services',
+    deadline: '2023-12-15',
+    isDraft: false,
+    logo: '/logos/tesla.png',
+    experience: '1-3 yr Exp',
+    salary: '12LPA'
+  },
+  {
+    id: 3,
+    title: 'UX/UI Designer',
+    company: 'Swiggy',
+    location: 'Onsite',
+    jobType: 'Full-time',
+    salaryRange: '₹70k - ₹100k',
+    description: 'A user-friendly interface lets you browse stunning photos and videos',
+    requirements: 'Figma, Adobe XD, UI/UX principles',
+    responsibilities: 'Design user interfaces and experiences',
+    deadline: '2023-12-20',
+    isDraft: false,
+    logo: '/logos/swiggy.png',
+    experience: '1-3 yr Exp',
+    salary: '12LPA'
+  },
+  {
+    id: 4,
+    title: 'Full Stack Developer',
+    company: 'Amazon',
+    location: 'Onsite',
+    jobType: 'Full-time',
+    salaryRange: '₹55k - ₹85k',
+    description: 'A user-friendly interface lets you browse stunning photos and videos',
+    requirements: 'JavaScript, React, Node.js',
+    responsibilities: 'Develop and maintain web applications',
+    deadline: '2023-12-25',
+    isDraft: false,
+    logo: '/logos/amazon.png',
+    experience: '1-3 yr Exp',
+    salary: '12LPA'
+  },
+  {
+    id: 5,
+    title: 'Node Js Developer',
+    company: 'Tesla',
+    location: 'Onsite',
+    jobType: 'Full-time',
+    salaryRange: '₹60k - ₹90k',
+    description: 'A user-friendly interface lets you browse stunning photos and videos',
+    requirements: 'Node.js, Express, MongoDB',
+    responsibilities: 'Develop and maintain backend services',
+    deadline: '2023-12-15',
+    isDraft: false,
+    logo: '/logos/tesla.png',
+    experience: '1-3 yr Exp',
+    salary: '12LPA'
+  },
+  {
+    id: 6,
+    title: 'UX/UI Designer',
+    company: 'Swiggy',
+    location: 'Onsite',
+    jobType: 'Full-time',
+    salaryRange: '₹70k - ₹100k',
+    description: 'A user-friendly interface lets you browse stunning photos and videos',
+    requirements: 'Figma, Adobe XD, UI/UX principles',
+    responsibilities: 'Design user interfaces and experiences',
+    deadline: '2023-12-20',
+    isDraft: false,
+    logo: '/logos/swiggy.png',
+    experience: '1-3 yr Exp',
+    salary: '12LPA'
+  },
+  {
+    id: 7,
+    title: 'Node Js Developer',
+    company: 'Tesla',
+    location: 'Onsite',
+    jobType: 'Full-time',
+    salaryRange: '₹60k - ₹90k',
+    description: 'A user-friendly interface lets you browse stunning photos and videos',
+    requirements: 'Node.js, Express, MongoDB',
+    responsibilities: 'Develop and maintain backend services',
+    deadline: '2023-12-15',
+    isDraft: false,
+    logo: '/logos/tesla.png',
+    experience: '1-3 yr Exp',
+    salary: '12LPA'
+  },
+  {
+    id: 8,
+    title: 'Full Stack Developer',
+    company: 'Amazon',
+    location: 'Onsite',
+    jobType: 'Full-time',
+    salaryRange: '₹50k - ₹80k',
+    description: 'A user-friendly interface lets you browse stunning photos and videos',
+    requirements: 'JavaScript, React, Node.js',
+    responsibilities: 'Develop and maintain web applications',
+    deadline: '2023-12-31',
+    isDraft: false,
+    logo: '/logos/amazon.png',
+    experience: '1-3 yr Exp',
+    salary: '12LPA'
+  }
+  // Add other mock jobs if needed
+];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [jobs, setJobs] = useState<Job[]>(mockJobs); // Initialize with mock data
+  const [loading, setLoading] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  
+  // Define an interface for the filters
+  interface JobFilters {
+    title: string;
+    location: string | null;
+    jobType: string | null;
+    minSalary: number;
+    maxSalary: number;
+  }
+  
+  const [filters, setFilters] = useState<JobFilters>({
+    title: '',
+    location: null,
+    jobType: null,
+    minSalary: 50,
+    maxSalary: 80
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  // Fetch jobs from the backend
+  const isFirstRender = useRef(true);
+
+  const fetchJobs = async () => {
+    setLoading(true);
+    try {
+      const url = new URL('http://localhost:3002/api/jobs/filter');
+      url.searchParams.append('title', filters.title || '');
+      if (filters.location) url.searchParams.append('location', filters.location);
+      if (filters.jobType) url.searchParams.append('jobType', filters.jobType);      
+      if (filters.minSalary) url.searchParams.append('minSalary', filters.minSalary.toString());
+      if (filters.maxSalary) url.searchParams.append('maxSalary', filters.maxSalary.toString());
+  
+      const res = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('API error:', errorText);
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+  
+      const data = await res.json();
+      console.log('Fetched jobs:', data);
+      setJobs([...mockJobs, ...data]); // ✅ append instead of replace
+    } catch (err) {
+      console.error('Fetch error:', err);
+      alert('Failed to fetch jobs. Please try again later.');
+      setJobs(mockJobs);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
+  
+  // Trigger fetchJobs whenever the filters change
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+  
+    fetchJobs();
+  }, [filters]);  
+
+  // Initial fetch when component mounts
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const handleFilterChange = (newFilters: Partial<JobFilters>) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+  };
+  
+  return (
+    <Box style={{ backgroundColor: 'white', minHeight: '100vh' }}>
+      {/* Header with centered navbar */}
+      <Box style={{ 
+        backgroundColor: 'white', 
+        borderBottom: '1px solid #f1f3f5',
+        padding: '15px 0'
+      }}>
+        <Container size="xl">
+          <Group justify="center" align="center" style={{ width: '100%' }}>
+            <Group gap="xl" style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
+              <Image 
+                src="/logo.png" 
+                alt="JobBoard Logo" 
+                width={40}
+                height={40}
+                fallbackSrc="https://placehold.co/40x40?text=JB"
+                style={{ marginRight: '20px' }}
+              />
+              <Text fw={500} style={{ cursor: 'pointer' }}>Home</Text>
+              <Text fw={500} style={{ cursor: 'pointer' }}>Find Jobs</Text>
+              <Text fw={500} style={{ cursor: 'pointer' }}>Find Talents</Text>
+              <Text fw={500} style={{ cursor: 'pointer' }}>About us</Text>
+              <Text fw={500} style={{ cursor: 'pointer' }}>Testimonials</Text>
+              <Button 
+                color="violet" 
+                radius="xl"
+                style={{ backgroundColor: '#7950f2' }}
+                onClick={() => setIsCreateModalOpen(true)}
+              >
+                Create Jobs
+              </Button>
+            </Group>
+          </Group>
+        </Container>
+      </Box>
+
+      <CreateJobModal
+        opened={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
+
+      <Container size="xl" py="xs">
+        {/* Filter bar */}
+        <Box style={{
+          width: 1312,
+          height: 100,
+          top: 95,
+          left: 100,
+          gap: 16,
+          position: 'absolute'
+        }}>
+          <FilterBar onFilterChange={handleFilterChange} />
+        </Box>
+
+        {/* Job listings */}
+        {loading ? (
+          <Center style={{ height: 200 }}>
+            <Loader size="md" />
+          </Center>
+        ) : (
+          <Box style={{
+            width: 1312,
+            height: 360,
+            top: 160,
+            left: 100,
+            gap: 16,
+            position: 'absolute'
+          }}>
+            <Grid gutter="md">
+              {jobs.map((job) => (
+                <Grid.Col key={job.id} span={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+                  <JobCard job={job} />
+                </Grid.Col>
+              ))}
+            </Grid>
+          </Box>
+        )}
+      </Container>
+    </Box>
   );
 }

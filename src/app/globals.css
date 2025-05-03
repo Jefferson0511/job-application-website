@@ -1,18 +1,24 @@
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@1,900,700,500,300,400&display=swap');
 @import "tailwindcss";
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0a0a0a;
+  --font-satoshi: 'Satoshi-Variable', sans-serif;
+  --font-geist-sans: 'Geist Sans', sans-serif;
+  --font-geist-mono: 'Geist Mono', monospace;
+  --max-width: 1360px; /* Slightly less than 1440 to account for scrollbars */
+  --spacing-unit: 16px;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-satoshi);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
@@ -22,5 +28,80 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-satoshi);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+p {
+  font-family: var(--font-satoshi);
+}
+
+/* Container styles for 1440x1024 */
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 calc(var(--spacing-unit) * 2);
+}
+
+/* Grid layout adjustments */
+.grid {
+  width: 100%;
+  padding: 0;
+  gap: calc(var(--spacing-unit) * 2);
+}
+
+/* Card styles */
+.card {
+  background: var(--foreground);
+  border-radius: 12px;
+  padding: calc(var(--spacing-unit) * 2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Header styles */
+.header {
+  padding: calc(var(--spacing-unit) * 2) 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Modal styles */
+.modal {
+  max-width: 90%;
+  width: 100%;
+  max-height: 90vh;
+  padding: calc(var(--spacing-unit) * 3);
+  border-radius: 16px;
+}
+
+/* Form styles */
+.form {
+  width: 100%;
+  max-width: 100%;
+  gap: calc(var(--spacing-unit) * 2);
+}
+
+/* Button styles */
+.button {
+  padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 3);
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1440px) {
+  .container {
+    padding: 0 var(--spacing-unit);
+  }
+  
+  .modal {
+    max-width: 80%;
+  }
 }
