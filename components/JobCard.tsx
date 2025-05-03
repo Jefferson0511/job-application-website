@@ -23,11 +23,11 @@ interface Job {
 
 interface JobCardProps {
   job: Job;
-  onEdit?: (jobId: number) => void;
-  onDelete?: (jobId: number) => void;
+  // onEdit?: (jobId: number) => void;
+  // onDelete?: (jobId: number) => void;
 }
 
-export default function JobCard({ job, onEdit, onDelete }: JobCardProps) {
+export default function JobCard({ job}: JobCardProps) {
   const handleApply = () => {
     console.log('Apply for job:', job.id);
     // Implementation for apply functionality

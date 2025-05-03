@@ -1,5 +1,5 @@
 'use client';
-
+import { ChangeEvent } from 'react';
 import { useState } from 'react';
 import { 
   Modal, 
@@ -12,16 +12,29 @@ import {
   Text, 
   Box,
   Grid,
-  ActionIcon,
+  // ActionIcon,
   NumberInput
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { IconCalendar, IconChevronDown } from '@tabler/icons-react';
 
+interface Job {
+  title: string;
+  company: string;
+  location: string;
+  jobType: string;
+  salaryRange: string;
+  deadline?: string;
+  description: string;
+  requirements: string;
+  responsibilities: string;
+  isDraft: boolean;
+}
+
 interface CreateJobModalProps {
   opened: boolean;
   onClose: () => void;
-  onJobCreated?: (job: any) => void;
+  onJobCreated?: (job: Job) => void;
 }
 
 export default function CreateJobModal({ opened, onClose, onJobCreated }: CreateJobModalProps) {

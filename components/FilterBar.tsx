@@ -4,9 +4,18 @@ import { useState } from 'react';
 import { Group, TextInput, Select, RangeSlider, Box, Text } from '@mantine/core';
 import { IconSearch, IconMapPin, IconBriefcase } from '@tabler/icons-react';
 
-interface FilterBarProps {
-  onFilterChange: (filters: any) => void;
+interface FilterValues {
+  title: string;
+  location: string | null;
+  jobType: string | null;
+  minSalary: number;
+  maxSalary: number;
 }
+
+interface FilterBarProps {
+  onFilterChange: (filters: FilterValues) => void;
+}
+
 
 export default function FilterBar({ onFilterChange }: FilterBarProps) {
   const [title, setTitle] = useState('');
