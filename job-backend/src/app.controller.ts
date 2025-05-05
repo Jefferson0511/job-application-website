@@ -8,5 +8,7 @@ export class AppController {
   @Get()  // This is correct usage of @Get() without any parameters
   getHello(): string {
     return this.appService.getHello();
+
+  
   }
 }

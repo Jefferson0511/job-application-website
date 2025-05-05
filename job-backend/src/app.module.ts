@@ -6,12 +6,13 @@ import { Job } from './job/job.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), // 👈 This loads .env
+    ConfigModule.forRoot({ isGlobal: true }), // Load .env file globally
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL, // 👈 Use this instead of host/username/password
-      entities: [Job],
-      synchronize: true,
+      url: process.env.DATABASE_URL,           // Use full database URL from .env
+      entities: [Job],                          // Your entity here
+      synchronize: true,                        // Set false in production
+      logging: true,                            // Optional: shows SQL logs
     }),
     JobModule,
   ],

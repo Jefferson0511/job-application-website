@@ -85,6 +85,22 @@ const mockJobs = [
   },
   {
     id: 4,
+    title: 'Backend Developer',
+    company: 'Google',
+    location: 'Remote',
+    jobType: 'Full-time',
+    salaryRange: '₹65k - ₹95k',
+    description: 'A user-friendly interface lets you browse stunning photos and videos',
+    requirements: 'Java, Spring Boot, SQL',
+    responsibilities: 'Develop and maintain backend services',
+    deadline: '2023-12-25',
+    isDraft: false,
+    logo: '/logos/google.png',
+    experience: '2-4 yr Exp',
+    salary: '15LPA'
+  },
+  {
+    id: 5,
     title: 'Full Stack Developer',
     company: 'Amazon',
     location: 'Onsite',
@@ -93,14 +109,14 @@ const mockJobs = [
     description: 'A user-friendly interface lets you browse stunning photos and videos',
     requirements: 'JavaScript, React, Node.js',
     responsibilities: 'Develop and maintain web applications',
-    deadline: '2023-12-25',
+    deadline: '2023-12-31',
     isDraft: false,
     logo: '/logos/amazon.png',
     experience: '1-3 yr Exp',
     salary: '12LPA'
   },
   {
-    id: 5,
+    id: 6,
     title: 'Node Js Developer',
     company: 'Tesla',
     location: 'Onsite',
@@ -116,7 +132,7 @@ const mockJobs = [
     salary: '12LPA'
   },
   {
-    id: 6,
+    id: 7,
     title: 'UX/UI Designer',
     company: 'Swiggy',
     location: 'Onsite',
@@ -132,7 +148,7 @@ const mockJobs = [
     salary: '12LPA'
   },
   {
-    id: 7,
+    id: 8,
     title: 'Node Js Developer',
     company: 'Tesla',
     location: 'Onsite',
@@ -148,7 +164,7 @@ const mockJobs = [
     salary: '12LPA'
   },
   {
-    id: 8,
+    id: 9,
     title: 'Full Stack Developer',
     company: 'Amazon',
     location: 'Onsite',
@@ -316,8 +332,8 @@ export default function Home() {
             position: 'absolute'
           }}>
             <Grid gutter="md">
-              {jobs.map((job) => (
-                <Grid.Col key={job.id} span={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+              {jobs.map((job, index) => (
+                <Grid.Col key={`${job.id}-${index}`} span={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
                   <JobCard job={job} />
                 </Grid.Col>
               ))}
