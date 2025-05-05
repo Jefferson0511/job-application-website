@@ -210,7 +210,7 @@ export default function Home() {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const url = new URL('http://localhost:3002/api/jobs/filter');
+      const url = new URL('https://job-application-website-production-ba78.up.railway.app/api/jobs/filter');
       url.searchParams.append('title', filters.title || '');
       if (filters.location) url.searchParams.append('location', filters.location);
       if (filters.jobType) url.searchParams.append('jobType', filters.jobType);      
