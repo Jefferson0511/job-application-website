@@ -94,7 +94,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
           { value: 'hybrid', label: 'Hybrid' },
         ]}
         value={location}
-        onChange={(value, option) => handleLocationChange(value)}
+        onChange={(value) => handleLocationChange(value)}
         style={{ flex: 1 }}
         size="sm"
       />
@@ -109,7 +109,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
           { value: 'internship', label: 'Internship' },
         ]}
         value={jobType}
-        onChange={(value, option) => handleJobTypeChange(value)}
+        onChange={(value) => handleJobTypeChange(value)}
         style={{ flex: 1 }}
         size="sm"
       />
