@@ -59,37 +59,57 @@ export class JobService {
 
   async filter(filters: FilterJobDto): Promise<Job[]> {
     try {
-      console.log('Filtering jobs with:', filters);
+      console.log('Received filters:', {
+        title: filters.title,
+        location: filters.location,
+        jobType: filters.jobType,
+        minSalary: filters.minSalary,
+        maxSalary: filters.maxSalary
+      });
       
       const queryBuilder = this.jobRepository.createQueryBuilder('job');
       
+      // Start with a base condition that will always be true
+      queryBuilder.where('1=1');
+      
       if (filters.title) {
-        queryBuilder.where('LOWER(job.title) LIKE LOWER(:title)', { title: `%${filters.title}%` });
+        queryBuilder.andWhere('LOWER(job.title) LIKE LOWER(:title)', { title: `%${filters.title}%` });
       }
       
       if (filters.location) {
-        queryBuilder.andWhere('LOWER(job.location) LIKE LOWER(:location)', { location: `%${filters.location}%` });
+        console.log('Applying location filter:', filters.location);
+        queryBuilder.andWhere('LOWER(job.location) = LOWER(:location)', { location: filters.location });
       }
       
       if (filters.jobType) {
-        queryBuilder.andWhere('LOWER(job.jobType) LIKE LOWER(:jobType)', { jobType: `%${filters.jobType}%` });
+        console.log('Applying jobType filter:', filters.jobType);
+        queryBuilder.andWhere('LOWER(job.jobType) = LOWER(:jobType)', { jobType: filters.jobType });
       }
-      
+
       if (filters.minSalary !== undefined && filters.maxSalary !== undefined) {
+        const minRange = `${filters.minSalary}-0`;
+        const maxRange = `${filters.maxSalary}-999999`;
         queryBuilder.andWhere('job.salaryRange BETWEEN :min AND :max', {
-          min: `${filters.minSalary}-0`,
-          max: `${filters.maxSalary}-999999`
+          min: minRange,
+          max: maxRange
         });
       }
+
+      // Log the generated SQL query
+      console.log('Generated SQL query:', queryBuilder.getQuery());
       
       const jobs = await queryBuilder.getMany();
       console.log('Filtered jobs:', jobs);
       return jobs;
     } catch (error) {
-      console.error('Error filtering jobs:', error);
+      console.error('Error filtering jobs:', {
+        error: error.message,
+        stack: error.stack
+      });
       throw new Error(`Failed to filter jobs: ${error.message}`);
     }
   }
+  
   async clearAllJobs(): Promise<void> {
     await this.jobRepository.clear(); // if using TypeORM
     // or: await this.jobModel.deleteMany({}); // if using Mongoose

@@ -20,7 +20,15 @@ async function bootstrap() {
   
   // Enable CORS for your frontend
   app.enableCors({
-    origin:'https://job-application-website-flame.vercel.app',
+    origin: function (origin, callback) {
+      if (!origin || 
+          origin === 'http://localhost:3000' || 
+          origin === 'https://job-application-website-flame.vercel.app') {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,

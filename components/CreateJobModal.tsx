@@ -87,7 +87,10 @@ export default function CreateJobModal({ opened, onClose, onJobCreated }: Create
       };
   
       // 🔥 POST the job to the backend API
-      const response = await fetch('https://job-application-website-production-ba78.up.railway.app/api/jobs', {
+      const apiUrl = process.env.NODE_ENV === 'development' 
+        ? 'http://localhost:3002/api/jobs'
+        : 'https://job-application-website-production-ba78.up.railway.app/api/jobs';
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

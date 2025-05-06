@@ -6,8 +6,8 @@ import { IconSearch, IconMapPin, IconBriefcase } from '@tabler/icons-react';
 
 interface FilterValues {
   title: string;
-  location: string | null;
-  jobType: string | null;
+  location: string;
+  jobType: string;
   minSalary: number;
   maxSalary: number;
 }
@@ -19,8 +19,8 @@ interface FilterBarProps {
 
 export default function FilterBar({ onFilterChange }: FilterBarProps) {
   const [title, setTitle] = useState('');
-  const [location, setLocation] = useState<string | null>(null);
-  const [jobType, setJobType] = useState<string | null>(null);
+  const [location, setLocation] = useState('');
+  const [jobType, setJobType] = useState('');
   const [salaryRange, setSalaryRange] = useState<[number, number]>([50, 150]);
 
   const handleTitleChange = (value: string) => {
@@ -29,13 +29,15 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
   };
 
   const handleLocationChange = (value: string | null) => {
-    setLocation(value);
-    applyFilters({ location: value });
+    console.log('Location changed to:', value);
+    setLocation(value || '');
+    applyFilters({ location: value || '' });
   };
 
   const handleJobTypeChange = (value: string | null) => {
-    setJobType(value);
-    applyFilters({ jobType: value });
+    console.log('Job type changed to:', value);
+    setJobType(value || '');
+    applyFilters({ jobType: value || '' });
   };
 
   const handleSalaryChange = (values: [number, number]) => {
@@ -44,17 +46,26 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
   };
   interface JobFilters {
     title?: string;
-    location?: string | null;
-    jobType?: string | null;
+    location?: string;
+    jobType?: string;
     minSalary?: number;
     maxSalary?: number;
   }
   
   const applyFilters = (newFilters: JobFilters) => {
-    const filters = {
+    console.log('Applying filters:', {
       title,
       location,
       jobType,
+      minSalary: salaryRange[0],
+      maxSalary: salaryRange[1],
+      ...newFilters
+    });
+    
+    const filters = {
+      title,
+      location: location || '',
+      jobType: jobType || '',
       minSalary: salaryRange[0],
       maxSalary: salaryRange[1],
       ...newFilters
@@ -77,9 +88,13 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
       <Select
         leftSection={<IconMapPin size={16} />}
         placeholder="Location"
-        data={['Onsite', 'Remote', 'Hybrid']}
+        data={[
+          { value: 'onsite', label: 'Onsite' },
+          { value: 'remote', label: 'Remote' },
+          { value: 'hybrid', label: 'Hybrid' },
+        ]}
         value={location}
-        onChange={handleLocationChange}
+        onChange={(value, option) => handleLocationChange(value)}
         style={{ flex: 1 }}
         size="sm"
       />
@@ -94,7 +109,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
           { value: 'internship', label: 'Internship' },
         ]}
         value={jobType}
-        onChange={handleJobTypeChange}
+        onChange={(value, option) => handleJobTypeChange(value)}
         style={{ flex: 1 }}
         size="sm"
       />
