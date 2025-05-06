@@ -1,7 +1,6 @@
 'use client';
 
 import { Group, Text, Badge, Button, Card, Box, Image } from '@mantine/core';
-import { IconMapPin, IconCoin } from '@tabler/icons-react';
 
 // Define the Job interface locally to avoid import issues
 interface Job {
