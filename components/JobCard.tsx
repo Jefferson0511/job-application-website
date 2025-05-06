@@ -36,6 +36,7 @@ export default function JobCard({ job}: JobCardProps) {
     <Card 
       shadow="sm" 
       padding="xs" 
+      pb="md"
       radius="md" 
       withBorder 
       style={{ 
@@ -181,8 +182,8 @@ export default function JobCard({ job}: JobCardProps) {
         </Group>
       </Group>
 
-      <Box p="xs" style={{ flex: 1 }}>
-        <Text size="sm" lh={1.4} mb={8} pl="6px" pr="12px" style={{
+      <Box p="sm" style={{ flex: 1 }}>
+        <Text size="sm" lh={1.4} pl="0px" pr="12px" style={{
           fontFamily: 'var(--font-satoshi)',
           color: '#555555'
         }}>
@@ -196,7 +197,23 @@ export default function JobCard({ job}: JobCardProps) {
         fullWidth
         color="#00AAFF"
         radius="xl"
-        style={{ margin: '0 0 8px 0', backgroundColor: '#00AAFF' }}
+        style={{
+          width: 284,
+          height: 46,
+          gap: 10,
+          borderRadius: '10px',
+          paddingTop: 12,
+          paddingRight: 10,
+          paddingBottom: 12,
+          paddingLeft: 10,
+          borderWidth: 1,
+          backgroundColor: '#00AAFF',
+          fontFamily: 'var(--font-satoshi)',
+          fontWeight: 600,
+          fontSize: '16px',
+          color: '#FFFFFF',
+          boxShadow: '0px 0px 14px 0px #5D5D5D26'
+        }}
         onClick={handleApply}
       >
         Apply Now
