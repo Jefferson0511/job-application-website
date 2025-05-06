@@ -72,6 +72,7 @@ export default function Home() {
         ? 'http://localhost:3002'
         : 'https://job-application-website-production-ba78.up.railway.app';
       
+      // Use the filter endpoint with existing parameters      
       const url = new URL(`${apiUrl}/api/jobs/filter`);
       url.searchParams.append('title', filters.title || '');
       if (filters.location) url.searchParams.append('location', filters.location.toLowerCase());
