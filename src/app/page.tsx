@@ -161,7 +161,7 @@ const mockJobs = [
     isDraft: false,
     logo: '/logos/tesla.png',
     experience: '1-3 yr Exp',
-    salary: '12LPA'
+    salary: '13LPA'
   },
   {
     id: 9,
