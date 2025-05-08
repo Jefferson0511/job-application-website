@@ -34,7 +34,6 @@ interface Job {
 }
 
 export default function Home() {
-  const [jobs, setJobs] = useState<Job[]>([]);
   const [sortedJobs, setSortedJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -102,12 +101,10 @@ export default function Home() {
       const data = await res.json();
       // Sort jobs by ID in ascending order
       const sortedData = [...data].sort((a, b) => a.id - b.id);
-      setJobs(sortedData);
       setSortedJobs(sortedData);
     } catch (err) {
       console.error('Fetch error:', err);
       alert('Failed to fetch jobs. Please try again later.');
-      setJobs([]);
       setSortedJobs([]);
     } finally {
       setLoading(false);
