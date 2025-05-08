@@ -197,7 +197,7 @@ export default function CreateJobModal({ opened, onClose, onJobCreated }: Create
                   transition: 'border-color 0.2s ease'
                 },
                 wrapper: {
-                  padding: '8px 0',
+                  padding: '0px 0',
                   background: 'transparent'
                 },
                 day: {
