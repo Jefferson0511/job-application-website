@@ -130,35 +130,48 @@ export default function Home() {
       {/* Header */}
       <Box style={{
         backgroundColor: 'white',
-        borderBottom: '1px solid #f1f3f5',
         padding: '15px 0'
       }}>
         <Container size="xl">
-          <Group justify="center" align="center" style={{ width: '100%' }}>
-            <Group gap="xl" style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
-              <Image
-                src="/logo.png"
-                alt="JobBoard Logo"
-                width={40}
-                height={40}
-                fallbackSrc="https://placehold.co/40x40?text=JB"
-                style={{ marginRight: '20px' }}
-              />
-              <Text fw={500} style={{ cursor: 'pointer' }}>Home</Text>
-              <Text fw={500} style={{ cursor: 'pointer' }}>Find Jobs</Text>
-              <Text fw={500} style={{ cursor: 'pointer' }}>Find Talents</Text>
-              <Text fw={500} style={{ cursor: 'pointer' }}>About us</Text>
-              <Text fw={500} style={{ cursor: 'pointer' }}>Testimonials</Text>
-              <Button
-                color="violet"
-                radius="xl"
-                style={{ backgroundColor: '#7950f2' }}
-                onClick={() => setIsCreateModalOpen(true)}
-              >
-                Create Jobs
-              </Button>
+          <Box style={{
+            backgroundColor: 'white',
+            borderRadius: '80px',
+            boxShadow: '0px 0px 20px 0px #7F7F7F26',
+            padding: '10px 20px',
+            maxWidth: '800px',
+            margin: '0 auto'
+          }}>
+            <Group justify="center" align="center" style={{ width: '100%' }}>
+              <Group gap="xl" style={{ alignItems: 'center' }}>
+                <Image
+                  src="/logo.png"
+                  alt="JobBoard Logo"
+                  width={40}
+                  height={40}
+                  fallbackSrc="https://placehold.co/40x40?text=JB"
+                />
+                <Text fw={600} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>Home</Text>
+                <Text fw={600} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>Find Jobs</Text>
+                <Text fw={600} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>Find Talents</Text>
+                <Text fw={600} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>About us</Text>
+                <Text fw={600} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>Testimonials</Text>
+                <Button
+                  radius="xl"
+                  style={{ 
+                    background: 'linear-gradient(180deg, #A128FF 0%, #6100AD 113.79%)',
+                    padding: '8px 16px',
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    fontFamily: 'var(--font-satoshi)',
+                    color: 'white'
+                  }}
+                  onClick={() => setIsCreateModalOpen(true)}
+                >
+                  Create Jobs
+                </Button>
+              </Group>
             </Group>
-          </Group>
+          </Box>
         </Container>
       </Box>
 
