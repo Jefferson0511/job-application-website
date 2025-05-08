@@ -35,6 +35,7 @@ interface Job {
 
 export default function Home() {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [sortedJobs, setSortedJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -99,11 +100,15 @@ export default function Home() {
       }
 
       const data = await res.json();
-      setJobs(data);
+      // Sort jobs by ID in ascending order
+      const sortedData = [...data].sort((a, b) => a.id - b.id);
+      setJobs(sortedData);
+      setSortedJobs(sortedData);
     } catch (err) {
       console.error('Fetch error:', err);
       alert('Failed to fetch jobs. Please try again later.');
       setJobs([]);
+      setSortedJobs([]);
     } finally {
       setLoading(false);
     }
@@ -150,11 +155,11 @@ export default function Home() {
                   height={40}
                   fallbackSrc="https://placehold.co/40x40?text=JB"
                 />
-                <Text fw={600} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>Home</Text>
-                <Text fw={600} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>Find Jobs</Text>
-                <Text fw={600} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>Find Talents</Text>
-                <Text fw={600} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>About us</Text>
-                <Text fw={600} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>Testimonials</Text>
+                <Text fw={600} lh="100%" lts={0} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>Home</Text>
+                <Text fw={600} lh="100%" lts={0} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>Find Jobs</Text>
+                <Text fw={600} lh="100%" lts={0} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>Find Talents</Text>
+                <Text fw={600} lh="100%" lts={0} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>About us</Text>
+                <Text fw={600} lh="100%" lts={0} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>Testimonials</Text>
                 <Button
                   radius="xl"
                   style={{ 
@@ -208,8 +213,8 @@ export default function Home() {
             position: 'absolute'
           }}>
             <Grid gutter="md">
-              {jobs.length > 0 ? (
-                jobs.map((job, index) => (
+              {sortedJobs.length > 0 ? (
+                sortedJobs.map((job, index) => (
                   <Grid.Col key={`${job.id}-${index}`} span={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
                     <JobCard job={job} />
                   </Grid.Col>

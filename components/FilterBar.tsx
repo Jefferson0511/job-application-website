@@ -81,7 +81,16 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
         leftSection={<IconSearch size={16} />}
         value={title}
         onChange={(e) => handleTitleChange(e.target.value)}
-        style={{ flex: 1 }}
+        style={{ 
+          flex: 1, 
+          fontFamily: 'Satoshi Variable',
+          fontWeight: 500,
+          fontSize: '16px',
+          lineHeight: '100%',
+          letterSpacing: '0%',
+          textAlign: 'center',
+          color: '#686868'
+        }}
         size="sm"
       />
       
@@ -95,7 +104,16 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
         ]}
         value={location}
         onChange={(value) => handleLocationChange(value)}
-        style={{ flex: 1 }}
+        style={{ 
+          flex: 1,
+          fontFamily: 'Satoshi Variable',
+          fontWeight: 500,
+          fontSize: '16px',
+          lineHeight: '100%',
+          letterSpacing: '0%',
+          textAlign: 'center',
+          color: '#686868'
+        }}
         size="sm"
       />
 
@@ -110,7 +128,16 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
         ]}
         value={jobType}
         onChange={(value) => handleJobTypeChange(value)}
-        style={{ flex: 1 }}
+        style={{ 
+          flex: 1,
+          fontFamily: 'Satoshi Variable',
+          fontWeight: 500,
+          fontSize: '16px',
+          lineHeight: '100%',
+          letterSpacing: '0%',
+          textAlign: 'center',
+          color: '#686868'
+        }}
         size="sm"
       />
 
@@ -128,14 +155,15 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
           styles={{
             root: { padding: '3px 30px' },
             track: { backgroundColor: '#e5e7eb', height: 4 },
-            bar: { backgroundColor: '#374151', height: 4 },
+            bar: { backgroundColor: '#222222', height: 4 },
             thumb: { 
               borderWidth: 2, 
               height: 10, 
               width: 10, 
-              backgroundColor: '#374151',
-              borderColor: '#374151',
+              backgroundColor: '#222222',
+              borderColor: '#222222',
             },
+            
           }}
         />
       </Box>
