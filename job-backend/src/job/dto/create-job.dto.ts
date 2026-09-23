@@ -1,22 +1,30 @@
 // src/job/dto/create-job.dto.ts
-import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsDateString, IsNumber } from 'class-validator';
+// `!` marks fields the ValidationPipe populates from the request body.
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsBoolean,
+  IsDateString,
+  IsNumber,
+} from 'class-validator';
 
 export class CreateJobDto {
   @IsString()
   @IsNotEmpty({ message: 'Job title is required' })
-  title: string;
+  title!: string;
 
   @IsString()
   @IsNotEmpty({ message: 'Company name is required' })
-  company: string;
+  company!: string;
 
   @IsString()
   @IsNotEmpty({ message: 'Location is required' })
-  location: string;
+  location!: string;
 
   @IsString()
   @IsNotEmpty({ message: 'Job type is required' })
-  jobType: string;
+  jobType!: string;
 
   @IsOptional()
   @IsString()
@@ -32,19 +40,19 @@ export class CreateJobDto {
 
   @IsString()
   @IsNotEmpty({ message: 'Description is required' })
-  description: string;
+  description!: string;
 
   @IsString()
   @IsNotEmpty({ message: 'Requirements are required' })
-  requirements: string;
+  requirements!: string;
 
   @IsString()
   @IsNotEmpty({ message: 'Responsibilities are required' })
-  responsibilities: string;
+  responsibilities!: string;
 
   @IsDateString()
   @IsNotEmpty({ message: 'Deadline is required' })
-  deadline: string;
+  deadline!: string;
 
   @IsOptional()
   @IsBoolean()

@@ -1,0 +1,46 @@
+# Local stack: Postgres with pgvector plus the NestJS API.
+#
+#   docker compose up --build
+#   docker compose exec api npm run search:reindex   # if you already had data
+#
+# The Next.js frontend still runs on the host with `npm run dev`; it talks to
+# the API on localhost:3002.
+services:
+  db:
+    # pgvector/pgvector ships the vector extension preinstalled. A plain
+    # postgres image cannot CREATE EXTENSION vector and semantic search will
+    # report itself unavailable.
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: jobs
+      POSTGRES_PASSWORD: jobs
+      POSTGRES_DB: jobs
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jobs -d jobs"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./job-backend
+    environment:
+      DATABASE_URL: postgres://jobs:jobs@db:5432/jobs
+      # Local development value only. Anything deployed must supply its own:
+      #   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+      JWT_SECRET: ${JWT_SECRET:-local-development-secret-not-for-deployment}
+      PORT: 3002
+      CORS_ORIGINS: http://localhost:3000
+      DB_SYNCHRONIZE: "true"
+    ports:
+      - "3002:3002"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:

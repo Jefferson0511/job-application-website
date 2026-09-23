@@ -23,5 +23,7 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  // job-backend is a separate Nest project with its own tsconfig; compiling it
+  // under the Next.js config reports decorator and Jest errors that are not real.
+  "exclude": ["node_modules", "job-backend"]
 }

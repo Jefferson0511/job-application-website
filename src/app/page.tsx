@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Container,
   Grid,
@@ -15,25 +15,14 @@ import {
 import JobCard from '../../components/JobCard';
 import FilterBar from '../../components/FilterBar';
 import CreateJobModal from '../../components/CreateJobModal';
-
-interface Job {
-  id: number;
-  title: string;
-  company: string;
-  location: string;
-  jobType: string;
-  salaryRange: string;
-  description: string;
-  requirements: string;
-  responsibilities: string;
-  deadline: string;
-  isDraft: boolean;
-  logo?: string;
-  experience?: string;
-  salary?: string;
-}
+import AuthModal from '../../components/AuthModal';
+import { jobApi } from '../lib/api';
+import { useAuth } from '../lib/use-auth';
+import type { Job } from '../lib/types';
 
 export default function Home() {
+  const { user, signOut } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [sortedJobs, setSortedJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -55,73 +44,71 @@ export default function Home() {
   });
 
   const isFirstRender = useRef(true);
+  // Debounced searches can still overlap; only the newest one may write state,
+  // otherwise a slow earlier request can overwrite newer results.
+  const latestRequest = useRef(0);
 
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
+    const requestId = ++latestRequest.current;
+    const isStale = () => requestId !== latestRequest.current;
+
     setLoading(true);
     try {
-      console.log('Filter values before sending:', {
-        title: filters.title,
-        location: filters.location,
-        jobType: filters.jobType,
+      const query = filters.title.trim();
+
+      if (query) {
+        // With free text present, rank by meaning instead of substring match,
+        // so "someone to look after our servers" surfaces the DevOps posting.
+        // The dropdowns still narrow the candidate set server-side, and the
+        // API already returns hits in descending relevance order.
+        const { data } = await jobApi.searchJobs({
+          q: query,
+          location: filters.location?.toLowerCase(),
+          jobType: filters.jobType?.toLowerCase(),
+          limit: 24,
+        });
+        if (!isStale()) {
+          setSortedJobs(data.map((hit) => hit.job));
+        }
+        return;
+      }
+
+      // No query: fall back to the structured filter endpoint and show
+      // everything matching, in a stable order.
+      const { data } = await jobApi.filterJobs({
+        location: filters.location?.toLowerCase(),
+        jobType: filters.jobType?.toLowerCase(),
         minSalary: filters.minSalary,
-        maxSalary: filters.maxSalary
+        maxSalary: filters.maxSalary,
       });
-
-      // Use local URL if in development, otherwise use production URL
-      const apiUrl = process.env.NODE_ENV === 'development' 
-        ? 'http://localhost:3002'
-        : 'https://job-application-website-production-ba78.up.railway.app';
-      
-      // Use the filter endpoint with existing parameters      
-      const url = new URL(`${apiUrl}/api/jobs/filter`);
-      url.searchParams.append('title', filters.title || '');
-      if (filters.location) url.searchParams.append('location', filters.location.toLowerCase());
-      if (filters.jobType) url.searchParams.append('jobType', filters.jobType.toLowerCase());
-      if (filters.minSalary && filters.maxSalary) {
-        const salaryRange = `${filters.minSalary}-${filters.maxSalary}`;
-        url.searchParams.append('salaryRange', salaryRange);
+      if (!isStale()) {
+        setSortedJobs([...data].sort((a, b) => a.id - b.id));
       }
-
-      console.log('URL with filters:', url.toString());
-      console.log('Query parameters:', url.searchParams.toString());
-
-      const res = await fetch(url.toString(), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error('API error:', errorText);
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-
-      const data = await res.json();
-      // Sort jobs by ID in ascending order
-      const sortedData = [...data].sort((a, b) => a.id - b.id);
-      setSortedJobs(sortedData);
     } catch (err) {
       console.error('Fetch error:', err);
-      alert('Failed to fetch jobs. Please try again later.');
-      setSortedJobs([]);
+      if (!isStale()) {
+        setSortedJobs([]);
+      }
     } finally {
-      setLoading(false);
+      if (!isStale()) {
+        setLoading(false);
+      }
     }
-  };
+  }, [filters]);
 
+  // Every keystroke in the search box would otherwise trigger an embedding
+  // call, so wait for a pause in typing. The first render fires immediately
+  // to fill the page.
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
+      fetchJobs();
       return;
     }
-    fetchJobs();
-  }, [filters]);
 
-  useEffect(() => {
-    fetchJobs();
-  }, []);
+    const timer = setTimeout(fetchJobs, 350);
+    return () => clearTimeout(timer);
+  }, [fetchJobs]);
 
   const handleFilterChange = (newFilters: Partial<JobFilters>) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
@@ -157,9 +144,11 @@ export default function Home() {
                 <Text fw={600} lh="100%" lts={0} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>Find Talents</Text>
                 <Text fw={600} lh="100%" lts={0} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>About us</Text>
                 <Text fw={600} lh="100%" lts={0} style={{ cursor: 'pointer', fontSize: '16px', fontFamily: 'var(--font-satoshi)' }}>Testimonials</Text>
+                {/* Posting a job needs an account, so signing in is the
+                    prompt when there is no session yet. */}
                 <Button
                   radius="xl"
-                  style={{ 
+                  style={{
                     background: 'linear-gradient(180deg, #A128FF 0%, #6100AD 113.79%)',
                     padding: '8px 16px',
                     fontSize: '16px',
@@ -167,19 +156,45 @@ export default function Home() {
                     fontFamily: 'var(--font-satoshi)',
                     color: 'white'
                   }}
-                  onClick={() => setIsCreateModalOpen(true)}
+                  onClick={() =>
+                    user ? setIsCreateModalOpen(true) : setIsAuthModalOpen(true)
+                  }
                 >
                   Create Jobs
                 </Button>
+
+                {user ? (
+                  <Group gap="xs">
+                    <Text size="sm" c="dimmed">{user.email}</Text>
+                    <Button variant="subtle" size="xs" radius="xl" onClick={signOut}>
+                      Sign out
+                    </Button>
+                  </Group>
+                ) : (
+                  <Button
+                    variant="subtle"
+                    size="xs"
+                    radius="xl"
+                    onClick={() => setIsAuthModalOpen(true)}
+                  >
+                    Sign in
+                  </Button>
+                )}
               </Group>
             </Group>
           </Box>
         </Container>
       </Box>
 
+      <AuthModal
+        opened={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
+
       <CreateJobModal
         opened={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
+        onJobCreated={() => void fetchJobs()}
       />
 
       <Container size="xl" py="xs">

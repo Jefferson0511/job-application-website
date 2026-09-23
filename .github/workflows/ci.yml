@@ -1,0 +1,153 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A new push to a PR makes the in-flight run obsolete.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (lint, types, unit tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: job-backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: job-backend/package-lock.json
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint:ci
+
+      - name: Typecheck (strict)
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test -- --ci
+
+  backend-integration:
+    name: Backend (pgvector integration tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: job-backend
+
+    services:
+      # The vector extension is not in the stock postgres image, so the
+      # integration suite needs this one to exercise the real search path.
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: jobs
+          POSTGRES_PASSWORD: jobs
+          POSTGRES_DB: jobs
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U jobs -d jobs"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgres://jobs:jobs@localhost:5432/jobs
+      DB_SYNCHRONIZE: "true"
+      # Throwaway value for the test run; the app refuses to boot without one.
+      JWT_SECRET: ci-only-secret-value-at-least-32-characters-long
+      TRANSFORMERS_CACHE_DIR: ${{ github.workspace }}/.model-cache
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: job-backend/package-lock.json
+
+      - run: npm ci
+
+      # The embedding model is ~25 MB and immutable, so cache it on the model
+      # name rather than re-downloading it on every run.
+      - name: Cache embedding model
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.model-cache
+          key: transformers-Xenova-all-MiniLM-L6-v2
+
+      - name: Integration tests (real embeddings + pgvector)
+        run: npm run test:e2e
+
+  frontend:
+    name: Frontend (lint, types, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+  docker:
+    name: Backend image builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./job-backend
+          push: false
+          load: true
+          tags: job-backend:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Image contains the compiled app and the baked model
+        run: |
+          # Asserting on the .onnx weights specifically, not just the cache
+          # directory: the Dockerfile creates that directory unconditionally so
+          # a prefetch failure cannot break the build.
+          docker run --rm --entrypoint node job-backend:ci -e "
+            const fs = require('fs');
+            fs.accessSync('dist/main.js');
+            const weights = fs.readdirSync('.model-cache', { recursive: true })
+              .filter((f) => String(f).endsWith('.onnx'));
+            if (weights.length === 0) throw new Error('embedding model was not baked into the image');
+            console.log('image layout ok:', weights.join(', '));
+          "
+
+      - name: Image runs as a non-root user
+        run: |
+          test "$(docker run --rm --entrypoint id job-backend:ci -un)" = "node"

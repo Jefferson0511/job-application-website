@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { DateInput } from '@mantine/dates';
 import {
+  Alert,
   Modal,
   TextInput,
   Select,
@@ -14,19 +15,8 @@ import {
   Text,
 } from '@mantine/core';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
-
-interface Job {
-  title: string;
-  company: string;
-  location: string;
-  jobType: string;
-  salaryRange: string;
-  deadline: string;
-  description: string;
-  requirements: string;
-  responsibilities: string;
-  isDraft: boolean;
-}
+import { errorMessage, jobApi } from '../src/lib/api';
+import type { Job } from '../src/lib/types';
 
 interface CreateJobModalProps {
   opened: boolean;
@@ -47,53 +37,44 @@ export default function CreateJobModal({ opened, onClose, onJobCreated }: Create
     requirements: '',
     responsibilities: '',
   });
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (field: string, value: string | number | null) => {
     setJobData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handlePublish = async () => {
+  const submit = async (isDraft: boolean) => {
     if (!jobData.title || !jobData.companyName || !jobData.location || !jobData.jobType) {
-      alert('Please fill in all required fields');
+      setError('Please fill in all required fields');
       return;
     }
 
-    const formattedJob = {
-      title: jobData.title,
-      company: jobData.companyName,
-      location: jobData.location,
-      jobType: jobData.jobType,
-      salaryRange: `${jobData.salaryFrom}-${jobData.salaryTo}`,
-      deadline: jobData.deadline,
-      description: jobData.description,
-      requirements: jobData.requirements,
-      responsibilities: jobData.responsibilities,
-      isDraft: false,
-    };
+    setSubmitting(true);
+    setError(null);
 
     try {
-      const apiUrl = process.env.NODE_ENV === 'development'
-        ? 'http://localhost:3002/api/jobs'
-        : 'https://job-application-website-production-ba78.up.railway.app/api/jobs';
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formattedJob),
+      // Goes through jobApi so the request picks up the bearer token from the
+      // shared axios interceptor.
+      const { data } = await jobApi.createJob({
+        title: jobData.title,
+        company: jobData.companyName,
+        location: jobData.location,
+        jobType: jobData.jobType,
+        salaryRange: `${jobData.salaryFrom}-${jobData.salaryTo}`,
+        deadline: jobData.deadline,
+        description: jobData.description,
+        requirements: jobData.requirements,
+        responsibilities: jobData.responsibilities,
+        isDraft,
       });
 
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || 'Failed to create job');
-      }
-
-      const createdJob = await response.json();
-      onJobCreated?.(createdJob);
-      alert('Job successfully published!');
+      onJobCreated?.(data);
       onClose();
-    } catch (error) {
-      console.error('Error creating job:', error);
-      alert('Failed to create job.');
+    } catch (err) {
+      setError(errorMessage(err, 'Failed to create the job posting.'));
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -109,6 +90,12 @@ export default function CreateJobModal({ opened, onClose, onJobCreated }: Create
     >
       <Stack>
         <Text fw={600} size="lg" ta="center">Create Job Opening</Text>
+
+        {error && (
+          <Alert color="red" radius="md">
+            {error}
+          </Alert>
+        )}
 
         <Grid>
           <Grid.Col span={6}>
@@ -136,8 +123,14 @@ export default function CreateJobModal({ opened, onClose, onJobCreated }: Create
           <Grid.Col span={6}>
             <Select
               label="Location"
-              placeholder="Chennai"
-              data={['Chennai', 'Bangalore', 'Hyderabad', 'Remote']}
+              placeholder="Remote"
+              // These must match the values the API's filter and search
+              // endpoints accept, or a posting cannot be filtered by location.
+              data={[
+                { value: 'remote', label: 'Remote' },
+                { value: 'onsite', label: 'Onsite' },
+                { value: 'hybrid', label: 'Hybrid' },
+              ]}
               value={jobData.location}
               onChange={(val) => handleChange('location', val)}
               radius="md"
@@ -294,6 +287,8 @@ export default function CreateJobModal({ opened, onClose, onJobCreated }: Create
             variant="outline"
             leftSection={<IconChevronDown size={16} />}
             color="dark"
+            onClick={() => void submit(true)}
+            disabled={submitting}
           >
             Save Draft
           </Button>
@@ -301,7 +296,8 @@ export default function CreateJobModal({ opened, onClose, onJobCreated }: Create
           <Button
             rightSection={<IconChevronRight size={18} />}
             color="blue"
-            onClick={handlePublish}
+            onClick={() => void submit(false)}
+            loading={submitting}
           >
             Publish
           </Button>
