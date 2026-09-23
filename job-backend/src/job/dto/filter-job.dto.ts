@@ -9,12 +9,16 @@ export class FilterJobDto {
 
   @IsOptional()
   @IsString()
-  @IsIn(['remote', 'onsite', 'hybrid'], { message: 'Location must be remote, onsite, or hybrid' })
+  @IsIn(['remote', 'onsite', 'hybrid'], {
+    message: 'Location must be remote, onsite, or hybrid',
+  })
   location?: string;
 
   @IsOptional()
   @IsString()
-  @IsIn(['full-time', 'part-time', 'contract', 'internship'], { message: 'Job type must be full-time, part-time, contract, or internship' })
+  @IsIn(['full-time', 'part-time', 'contract', 'internship'], {
+    message: 'Job type must be full-time, part-time, contract, or internship',
+  })
   jobType?: string;
 
   @IsOptional()
